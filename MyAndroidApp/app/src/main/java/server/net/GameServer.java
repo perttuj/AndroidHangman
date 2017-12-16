@@ -1,10 +1,12 @@
 package server.net;
 
+import server.controller.Controller;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import server.controller.Controller;
+
 /**
  *  Server for handling new connections for new players
  * @author Perttu Jääskeläinen

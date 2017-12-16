@@ -3,7 +3,6 @@ package com.example.pertt.myandroidapp;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -20,8 +19,8 @@ public class SocketConnection {
     private static final int PORT = 8000;
     private static int attempts = 0;
     private static boolean connected = false;
-    private static BufferedReader inStream;
-    private static PrintWriter outStream;
+    private static BufferedReader fromServer;
+    private static PrintWriter toServer;
 
     private SocketConnection() {
     }
@@ -38,23 +37,29 @@ public class SocketConnection {
             socket = new Socket();
             socket.connect(new InetSocketAddress(HOST, PORT), TIMEOUT_SERVER_SOCKET);
             socket.setSoTimeout(TIMEOUT_CLIENT_SOCKET);
-            /*
-            outStream = new PrintWriter(socket.getOutputStream(), true);
-            inStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));*/
+            toServer = new PrintWriter(socket.getOutputStream(), true);
+            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             return true;
         } catch (IOException e) {
             socket = null;
             connected = false;
-            outStream = null;
-            inStream = null;
+            toServer = null;
+            fromServer = null;
             e.printStackTrace();
             return false;
         }
     }
-    public static synchronized void sendGuess(String guess) {
+    public static synchronized String sendCommand(String command) {
         if (!connected) {
-            return;
+            return null;
         }
-        outStream.write(guess);
+        toServer.println(command);
+        try {
+            String res = fromServer.readLine();
+            return res;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

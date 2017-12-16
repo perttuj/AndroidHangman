@@ -1,5 +1,7 @@
 package server.net;
 
+import server.controller.Controller;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,9 +9,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import server.controller.Controller;
-import common.Constants;
-import common.ServerMessageTypes;
+
+import server.common.ServerInfoDTO;
+import server.common.Constants;
+import server.common.ServerMessageTypes;
+
 /**
  *  Class for handling all player actions and responses
  * for playing the hangman game
@@ -17,6 +21,7 @@ import common.ServerMessageTypes;
  */
 public class PlayerHandler implements Runnable {
 
+    private ServerInfoDTO info;
     private final Socket playerSocket;
     private final Controller contr;
     private String currentWord;
@@ -24,7 +29,7 @@ public class PlayerHandler implements Runnable {
     private int currentScore;
     private int tries;
     private volatile boolean connected;
-    private boolean playing;
+    private boolean firstrun;
     private List<String> guesses;
 
     public PlayerHandler (Controller controller, Socket player) {
@@ -57,10 +62,10 @@ public class PlayerHandler implements Runnable {
      * @return  the gamedone screen text
      */
     private String gameDone() {
+        info.setStatus(true);
         currentScore++;
-        playing = false;
-        String response = "Congratulations, you completed the word: " + currentWord + " with " + tries + " tries remaining. "
-                + "Your new score is: " + currentScore + ". Write 'NEWWORD' to play again";
+        info.setScore(currentScore);
+        String response = "Congratulations, you completed the word: " + currentWord;
         return response;
     }
     /**
@@ -68,9 +73,10 @@ public class PlayerHandler implements Runnable {
      * @return      the gameover screen text
      */
     private String gameOver() {
+        info.setStatus(true);
         currentScore--;
-        playing = false;
-        String response = "Game over. The correct word was: " + currentWord + ", your new score is: " + currentScore + ". Write 'NEWWORD' to play again";
+        info.setScore(currentScore);
+        String response = "Game over. The correct word was: " + currentWord;
         return response;
     }
     /**
@@ -82,7 +88,7 @@ public class PlayerHandler implements Runnable {
         if (completedWord()) {
             return gameDone();
         }
-        String response = ("Guess succesful! Current word: " + hiddenWord + ", tries remaining: " + tries);
+        String response = "Guess succesful)";
         return response;
     }
     /**
@@ -90,7 +96,7 @@ public class PlayerHandler implements Runnable {
      * @return      response for an unsuccesful guess
      */
     private String unsuccesfulGuess() {
-        String response = ("Guess unsuccesful! Current word: " + hiddenWord + ", tries remaining: " + tries);
+        String response ="Guess unsuccesful";
         return response;
     }
     /**
@@ -109,6 +115,7 @@ public class PlayerHandler implements Runnable {
      * the new word (word of length 5 has 5 guesses)
      */
     private void newGame() {
+        info.setStatus(false);
         currentWord = contr.getWord();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < currentWord.length(); i++) {
@@ -116,7 +123,9 @@ public class PlayerHandler implements Runnable {
         }
         hiddenWord = sb.toString();
         tries = currentWord.length();
-        guesses = new ArrayList<String>();
+        guesses = new ArrayList<>();
+        info.setGuesses(tries);
+        info.setCurrent(hiddenWord);
     }
     /**
      * checks if the response from the model was succesful (correct guess)
@@ -148,7 +157,7 @@ public class PlayerHandler implements Runnable {
      * Prints out user information
      */
     private String getInfo() {
-        String response = "Current word is " + currentWord.length() + " characters. You have " + tries + " guesses remaining";
+        String response = "Current word is " + currentWord.length() + " characters.";
         return response;
     }
     /**
@@ -162,7 +171,7 @@ public class PlayerHandler implements Runnable {
             return "Incorrect format, please only use letters when guessing";
         }
         if (guesses.contains(guess)) {
-            return "You already made the same guess, try a new letter or word!";
+            return "You already made the same guess, try a new letter or word";
         }
         guesses.add(guess);
         String newHidden = contr.processGuess(guess, currentWord, hiddenWord);
@@ -172,9 +181,11 @@ public class PlayerHandler implements Runnable {
         boolean succesful = processResponse(newHidden);
         if (succesful) {
             hiddenWord = newHidden;
+            info.setCurrent(hiddenWord);
             return succesfulGuess();
         } else {
             tries--;
+            info.setGuesses(tries);
             if (tries == 0) {
                 return gameOver();
             } else {
@@ -199,59 +210,57 @@ public class PlayerHandler implements Runnable {
         }
     }
     /**
-     * Main method run by the users serverside 'PlayerHandler' thread.
+     * Main method run by the users server side 'PlayerHandler' thread.
      * The thread stays in the while loop until a disconnect is initiated,
      * after which it simply exits.
      */
     @Override
     public void run() {
         try {
+            info = new ServerInfoDTO("running", 0, 0);
+            info.setStatus(false);
             boolean autoFlush = true;
             ClientMessenger client = newMessenger(playerSocket, autoFlush);
             while (connected) {
                 Message msg = new Message(client.readLine());
                 switch (msg.type) {
                     case NEWWORD:
-                        if (!playing) {
-                            client.respond("Starting new game");
-                            playing = true;
+                        if (!Boolean.valueOf(info.getStatus())) {
                             newGame();
-                            client.respond(getInfo());
+                            info.setResponse("Starting new game. " + getInfo());
+
                         } else {
-                            client.respond("Already playing. Start a new game anyway? YES/NO (Score will be decremented if a new game is started)");
-                            String line = client.readLine().toUpperCase();
-                            if (line.contains("YES")) {
-                                client.respond("Starting new game");
-                                newGame();
-                            } else {
-                                client.respond("Continuing");
-                                client.respond(getInfo());
-                            }
+                            newGame();
+                            info.setResponse("Starting new game, decrementing score");
+                            info.setScore(Integer.parseInt(info.getScore()) - 1);
                         }
+                        client.respond(info);
                         break;
                     case DISCONNECT:
                         disconnect();
                         break;
                     case GUESS:
-                        if (!playing) {
-                            client.respond("Currently not playing. Write 'NEWWORD' to start a new game");
-                            break;
-                        }
-                        if (msg.body == null) {
-                            client.respond("error when parsing msg body, please try again");
+                        if (!firstrun || !Boolean.valueOf(info.getStatus())) {
+                            info.setResponse("Currently not playing");
                         } else {
-                            client.respond(guess(msg.body));
+                            if (msg.body == null) {
+                                info.setResponse("error when parsing msg body, please try again");
+                            } else {
+                                info.setResponse(guess(msg.body));
+                            }
                         }
+                        client.respond(info);
                         break;
                     case RESPONSE:
-                        client.respond("Illegal type - should only be used by the server for responses");
+                        info.setResponse("Illegal type - should only be used by the server for responses");
+                        client.respond(info);
                         break;
                     default:
                         throw new IllegalArgumentException("Error when parsing message: " + msg.fullMsg);
                 }
             }
             client.disconnected();
-        } catch (IOException e) {
+        } catch (Exception e) {
             disconnect();
             System.out.println("Disconnecting..");
         }
@@ -276,10 +285,11 @@ public class PlayerHandler implements Runnable {
          * Send a response to the user in correct format
          * @param message   The message to be sent
          */
-        private void respond(String message) {
-            if (connected) {
-                clientWriter.println(ServerMessageTypes.RESPONSE.toString() + Constants.DELIMETER + message);
-            }
+        private void respond(ServerInfoDTO message) {
+            // if (!connected) return;
+            String msg = ServerInfoDTO.toString(message);
+            String fin = ServerMessageTypes.RESPONSE + Constants.DELIMETER + msg;
+            clientWriter.println(fin);
         }
         /**
          * Read a line from the user socket
