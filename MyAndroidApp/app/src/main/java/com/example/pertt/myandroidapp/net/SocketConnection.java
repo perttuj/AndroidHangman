@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp;
+package com.example.pertt.myandroidapp.net;
 
 import java.io.BufferedReader;
 import java.io.IOException;

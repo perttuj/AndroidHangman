@@ -1,6 +1,7 @@
-package com.example.pertt.myandroidapp;
+package com.example.pertt.myandroidapp.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -8,18 +9,38 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.pertt.myandroidapp.Constants;
+import com.example.pertt.myandroidapp.R;
+import com.example.pertt.myandroidapp.net.ServerSender;
+
 /**
  * Created by pertt on 2017-12-12.
  */
 
 public class GameActivity extends Activity {
+    public static final String GAMEINFO_KEY = "GAMEINFO";
     private boolean playing = false;
-    public static final String GAME_INFO_KEY = "GAME_INFO";
     @Override
     public void onCreate(Bundle bundleInstance) {
         super.onCreate(bundleInstance);
         setContentView(R.layout.game_activity);
         new Starter().execute();
+    }
+    private void writeInfo(String[] messages) {
+        playing = true;
+        setContentView(R.layout.game_activity);
+        TextView score = findViewById(R.id.score_info);
+        TextView guesses = findViewById(R.id.guesses_info);
+        TextView info = findViewById(R.id.server_message);
+        TextView current = findViewById(R.id.current_word);
+        info.setText(messages[0]);
+        score.setText(messages[1]);
+        guesses.setText(messages[2]);
+        current.setText(messages[3]);
+    }
+    private void writeInfo(String s) {
+        String[] messages = s.split(Constants.INFO_DELIMETER);
+        writeInfo(messages);
     }
     public void onGuessClick(View v) {
         Button b = (Button) v;
@@ -36,6 +57,7 @@ public class GameActivity extends Activity {
         new Starter().execute();
     }
     public void onQuitClick(View v) {
+        finish();
         System.exit(0);
     }
     private class Starter extends AsyncTask<Void, Void, String> {
@@ -45,21 +67,7 @@ public class GameActivity extends Activity {
         }
         @Override
         protected void onPostExecute(String s) {
-            playing = true;
-            String[] messages = s.split(Constants.INFO_DELIMETER);
-            TextView score = findViewById(R.id.score_info);
-            TextView guesses = findViewById(R.id.guesses_info);
-            TextView info = findViewById(R.id.server_message);
-            TextView current = findViewById(R.id.current_word);
-            String result = messages[4];
-            boolean gameOver = Boolean.getBoolean(result);
-            if (gameOver) {
-                // TODO, info when game is over
-            }
-            info.setText(messages[0]);
-            score.setText(messages[1]);
-            guesses.setText(messages[2]);
-            current.setText(messages[3]);
+            writeInfo(s);
         }
     }
     private class GuessSender extends AsyncTask<String, Void, String> {
@@ -83,18 +91,20 @@ public class GameActivity extends Activity {
                 t.setText(messages[0]);
                 return;
             }
+            boolean gameDone = Boolean.valueOf(messages[4]);
+            if (gameDone) {
+                Intent i = new Intent(GameActivity.this, GameOver.class);
+                i.putExtra(GameActivity.GAMEINFO_KEY, messages);
+                startActivity(i);
+                return;
+            }
             TextView score = findViewById(R.id.score_info);
-            TextView guesses = findViewById(R.id.guesses_info);
+            TextView guess = findViewById(R.id.guesses_info);
             TextView info = findViewById(R.id.server_message);
             TextView current = findViewById(R.id.current_word);
-            String result = messages[4];
-            boolean gameOver = Boolean.getBoolean(result);
-            if (gameOver) {
-                // TODO, info when game is over
-            }
             info.setText(messages[0]);
             score.setText(messages[1]);
-            guesses.setText(messages[2]);
+            guess.setText(messages[2]);
             current.setText(messages[3]);
         }
     }

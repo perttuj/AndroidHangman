@@ -10,12 +10,12 @@
         android:id="@+id/server_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
         android:text="response placeholder"
-        app:layout_constraintBottom_toBottomOf="@id/guesses_info"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toTopOf="@id/current_word"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/score_info" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
@@ -23,35 +23,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="progress PH"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@id/guesses_info"
-        app:layout_constraintBottom_toTopOf="@id/word_guess"
-        app:layout_constraintStart_toStartOf="@id/current_word_desc"
+        android:textSize="32sp"
+        android:gravity="center"
+        app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteX="115dp"
-        tools:layout_editor_absoluteY="170dp" />
+        app:layout_constraintTop_toBottomOf="@id/server_message"
+        app:layout_constraintBottom_toTopOf="@id/word_guess"/>
     <TextView
         android:id="@+id/guesses_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="guesses placeholder"
-        app:layout_constraintBottom_toTopOf="@id/current_word"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="14sp"
+        android:text="4"
+        android:gravity="center"
         app:layout_constraintStart_toEndOf="@id/guesses_info_desc"
-        app:layout_constraintTop_toBottomOf="@id/server_message"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@id/current_word"/>
 
     <TextView
         android:id="@+id/score_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:text="4"
-        app:layout_constraintBottom_toTopOf="@id/server_message"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/current_word_desc"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:gravity="top|left"
+        app:layout_constraintStart_toEndOf="@id/score_info_desc"/>
 
     <Button
         android:id="@+id/button_a"
@@ -352,49 +347,35 @@
 
     <EditText
         android:id="@+id/word_guess"
-        android:layout_width="120dp"
+        android:layout_width="200dp"
         android:layout_height="40dp"
+        android:hint="Guess word here"
         android:inputType="text"
-        android:text=""
-        app:layout_constraintTop_toBottomOf="@id/current_word"
-        app:layout_constraintBottom_toTopOf="@id/new_game"
-        app:layout_constraintStart_toStartOf="@id/guess_word_desc"
-        app:layout_constraintEnd_toStartOf="@id/guess_button" />
-
-    <TextView
-        android:id="@+id/current_word_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current word:"
-        android:textSize="18sp"
+        android:textAlignment="center"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/current_word"
-        app:layout_constraintTop_toBottomOf="@id/guesses_info"
-        app:layout_constraintBottom_toTopOf="@id/word_guess" />
+        app:layout_constraintBottom_toTopOf="@id/new_game"
+        app:layout_constraintEnd_toStartOf="@id/guess_button"
+        app:layout_constraintTop_toBottomOf="@id/current_word" />
 
     <TextView
         android:id="@+id/guesses_info_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remaining guesses:"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@id/guesses_info"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/server_message"
-        app:layout_constraintBottom_toTopOf="@id/current_word_desc"
-        tools:layout_editor_absoluteX="36dp"
-        tools:layout_editor_absoluteY="220dp" />
+        android:gravity="center_horizontal"
+        android:text="Guesses remaining: "
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/current_word"
+        app:layout_constraintStart_toStartOf="@id/current_word"
+        app:layout_constraintTop_toBottomOf="@id/current_word" />
 
     <TextView
         android:id="@+id/score_info_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Score:"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/score_info"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/server_message" />
+        android:text="Score: "
+        android:textSize="14sp"
+        android:gravity="top|left"
+         />
 
     <Button
         android:id="@+id/new_game"
@@ -428,17 +409,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/word_guess"
         app:layout_constraintTop_toBottomOf="@id/current_word" />
-
-    <TextView
-        android:id="@+id/guess_word_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Guess word here: "
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/word_guess"
-        app:layout_constraintTop_toBottomOf="@id/current_word_desc"
-        app:layout_constraintBottom_toTopOf="@id/new_game"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="246dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp;
+package com.example.pertt.myandroidapp.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.pertt.myandroidapp.R;
+import com.example.pertt.myandroidapp.net.SocketConnection;
 
 public class MainActivity extends Activity {
 

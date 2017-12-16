@@ -29,7 +29,6 @@ public class PlayerHandler implements Runnable {
     private int currentScore;
     private int tries;
     private volatile boolean connected;
-    private boolean firstrun;
     private List<String> guesses;
 
     public PlayerHandler (Controller controller, Socket player) {
@@ -65,7 +64,7 @@ public class PlayerHandler implements Runnable {
         info.setStatus(true);
         currentScore++;
         info.setScore(currentScore);
-        String response = "Congratulations, you completed the word: " + currentWord;
+        String response = "You completed the word: " + currentWord;
         return response;
     }
     /**
@@ -76,7 +75,7 @@ public class PlayerHandler implements Runnable {
         info.setStatus(true);
         currentScore--;
         info.setScore(currentScore);
-        String response = "Game over. The correct word was: " + currentWord;
+        String response = "The correct word was: " + currentWord;
         return response;
     }
     /**
@@ -84,11 +83,11 @@ public class PlayerHandler implements Runnable {
      * generate a gameDone message.
      * @return      a proper message for a succesful guess
      */
-    private String succesfulGuess() {
+    private String successful() {
         if (completedWord()) {
             return gameDone();
         }
-        String response = "Guess succesful)";
+        String response = "Successful guess)";
         return response;
     }
     /**
@@ -96,7 +95,7 @@ public class PlayerHandler implements Runnable {
      * @return      response for an unsuccesful guess
      */
     private String unsuccesfulGuess() {
-        String response ="Guess unsuccesful";
+        String response ="Unsuccessful guess";
         return response;
     }
     /**
@@ -104,7 +103,7 @@ public class PlayerHandler implements Runnable {
      * @return  response for an invalid guess
      */
     private String invalidGuess() {
-        String response = "Invalid guess, either guess a letter or the entire word";
+        String response = "Guess a letter or the word";
         return response;
     }
     /**
@@ -157,7 +156,7 @@ public class PlayerHandler implements Runnable {
      * Prints out user information
      */
     private String getInfo() {
-        String response = "Current word is " + currentWord.length() + " characters.";
+        String response = "Word is " + currentWord.length() + " characters.";
         return response;
     }
     /**
@@ -171,7 +170,7 @@ public class PlayerHandler implements Runnable {
             return "Incorrect format, please only use letters when guessing";
         }
         if (guesses.contains(guess)) {
-            return "You already made the same guess, try a new letter or word";
+            return "You made the same guess, try a new letter or word";
         }
         guesses.add(guess);
         String newHidden = contr.processGuess(guess, currentWord, hiddenWord);
@@ -182,7 +181,7 @@ public class PlayerHandler implements Runnable {
         if (succesful) {
             hiddenWord = newHidden;
             info.setCurrent(hiddenWord);
-            return succesfulGuess();
+            return successful();
         } else {
             tries--;
             info.setGuesses(tries);
@@ -206,7 +205,7 @@ public class PlayerHandler implements Runnable {
             PrintWriter clientWriter = new PrintWriter(client.getOutputStream(), flush);
             return new ClientMessenger(clientReader, clientWriter, connected);
         } catch (IOException e) {
-            throw new IOException("Error when creating output and inputstreams: " + e);
+            throw new IOException("Error when creating output and input streams: " + e);
         }
     }
     /**
@@ -218,17 +217,17 @@ public class PlayerHandler implements Runnable {
     public void run() {
         try {
             info = new ServerInfoDTO("running", 0, 0);
-            info.setStatus(false);
+            info.setStatus(true);
             boolean autoFlush = true;
             ClientMessenger client = newMessenger(playerSocket, autoFlush);
             while (connected) {
                 Message msg = new Message(client.readLine());
                 switch (msg.type) {
                     case NEWWORD:
-                        if (!Boolean.valueOf(info.getStatus())) {
+                        if (Boolean.valueOf(info.getStatus())) {
                             newGame();
                             info.setResponse("Starting new game. " + getInfo());
-
+                            info.setStatus(false);
                         } else {
                             newGame();
                             info.setResponse("Starting new game, decrementing score");
@@ -240,7 +239,7 @@ public class PlayerHandler implements Runnable {
                         disconnect();
                         break;
                     case GUESS:
-                        if (!firstrun || !Boolean.valueOf(info.getStatus())) {
+                        if (Boolean.valueOf(info.getStatus())) {
                             info.setResponse("Currently not playing");
                         } else {
                             if (msg.body == null) {

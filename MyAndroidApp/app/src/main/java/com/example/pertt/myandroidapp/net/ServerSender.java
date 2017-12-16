@@ -1,7 +1,6 @@
-package com.example.pertt.myandroidapp;
+package com.example.pertt.myandroidapp.net;
 
 import server.common.Constants;
-import server.common.ServerInfoDTO;
 import server.common.ServerMessageTypes;
 
 /**

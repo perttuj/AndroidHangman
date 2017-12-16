@@ -52,8 +52,9 @@ public class GameServer {
         PlayerHandler handler = new PlayerHandler(contr, player);
         Thread playerThread = new Thread(handler);
         playerThread.setPriority(Thread.MAX_PRIORITY);
-        playerThread.run();
+        playerThread.start();
     }
+
     /**
      * Used to parse arguments received when compiling the server - if a port number is not specified,
      * use the default portnumber defined in this class
