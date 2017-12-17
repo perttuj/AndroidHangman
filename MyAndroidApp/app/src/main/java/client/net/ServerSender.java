@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp.net;
+package client.net;
 
 import server.common.Constants;
 import server.common.ServerMessageTypes;

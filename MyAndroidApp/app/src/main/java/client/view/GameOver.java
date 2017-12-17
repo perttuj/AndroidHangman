@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp.view;
+package client.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.pertt.myandroidapp.R;
+
+import client.net.SocketConnection;
 
 /**
  * Created by Perttu on 2017-12-16.
@@ -32,15 +34,23 @@ public class GameOver extends Activity {
         TextView gameScore = findViewById(R.id.game_score);
         String score = info[1];
         gameScore.setText(score);
+        TextView text = findViewById(R.id.client_message);
+        text.setVisibility(View.INVISIBLE);
     }
     public void NextGameClick(View v) {
+        TextView text = findViewById(R.id.client_message);
+        text.setText("Starting next game...");
+        text.setVisibility(View.VISIBLE);
         String[] arr = getIntent().getStringArrayExtra(GameActivity.GAMEINFO_KEY);
         Intent i = new Intent(GameOver.this, GameActivity.class);
         i.putExtra(GameActivity.GAMEINFO_KEY, arr);
         startActivity(i);
     }
     public void ExitClick(View v) {
-        finish();
-        System.exit(0);
+        TextView text = findViewById(R.id.client_message);
+        text.setText("Disconnecting...");
+        SocketConnection.disconnect();
+        Intent i = new Intent(GameOver.this, MainActivity.class);
+        startActivity(i);
     }
 }

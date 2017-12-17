@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp.net;
+package client.net;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,6 +47,27 @@ public class SocketConnection {
             fromServer = null;
             e.printStackTrace();
             return false;
+        }
+    }
+    public static void disconnect() {
+        if (socket == null) {
+            return;
+        }
+
+        try {
+            socket.close();
+            toServer.close();
+            fromServer.close();
+
+            socket = null;
+            toServer = null;
+            fromServer = null;
+        } catch (IOException e) {
+            socket = null;
+            toServer = null;
+            fromServer = null;
+        } finally {
+            connected = false;
         }
     }
     public static synchronized String sendCommand(String command) {

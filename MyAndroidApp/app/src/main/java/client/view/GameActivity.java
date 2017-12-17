@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp.view;
+package client.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,16 +9,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.pertt.myandroidapp.Constants;
+
 import com.example.pertt.myandroidapp.R;
-import com.example.pertt.myandroidapp.net.ServerSender;
+
+import client.net.ServerSender;
+import client.net.SocketConnection;
+import server.common.Constants;
 
 /**
  * Created by pertt on 2017-12-12.
  */
 
 public class GameActivity extends Activity {
-    public static final String GAMEINFO_KEY = "GAMEINFO";
+    public static final String GAMEINFO_KEY = "PERTTU/CLIENT/GAMEINFO";
     private boolean playing = false;
     @Override
     public void onCreate(Bundle bundleInstance) {
@@ -57,8 +60,9 @@ public class GameActivity extends Activity {
         new Starter().execute();
     }
     public void onQuitClick(View v) {
-        finish();
-        System.exit(0);
+        Intent i = new Intent(GameActivity.this, MainActivity.class);
+        SocketConnection.disconnect();
+        startActivity(i);
     }
     private class Starter extends AsyncTask<Void, Void, String> {
         @Override

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.pertt.myandroidapp.view.MainActivity">
+    tools:context="client.view.MainActivity">
 
     <TextView
         android:id="@+id/start_text"
@@ -31,7 +31,7 @@
         android:id="@+id/connection_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="40dp"
+        android:textSize="24dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/start_button"
         app:layout_constraintLeft_toLeftOf="parent"

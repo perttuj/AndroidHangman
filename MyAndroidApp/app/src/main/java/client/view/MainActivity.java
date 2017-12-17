@@ -1,4 +1,4 @@
-package com.example.pertt.myandroidapp.view;
+package client.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.pertt.myandroidapp.R;
-import com.example.pertt.myandroidapp.net.SocketConnection;
+import client.net.SocketConnection;
 
 public class MainActivity extends Activity {
 
